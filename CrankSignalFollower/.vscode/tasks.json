@@ -6,12 +6,18 @@
         {
             "label": "build",
             "type": "shell",
-            "command": "make all"
+            "command": "make all",
+            "problemMatcher": [
+                "$gcc"
+            ]
         },
         {
             "label": "clean",
             "type": "shell",
-            "command": "make clean"
+            "command": "make clean",
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }
