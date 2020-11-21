@@ -190,6 +190,12 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 1 */
 }
 
+void EXTI9_5_IRQHandler(void)
+{
+  int a = 1;
+  a+=1;
+}
+
 /******************************************************************************/
 /* STM32F3xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
