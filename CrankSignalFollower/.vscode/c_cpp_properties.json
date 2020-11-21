@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "stm32f3",
+            "includePath": [
+                "./Inc",
+                "./Drivers/STM32F3xx_HAL_Driver/Inc",
+                "./Drivers/STM32F3xx_HAL_Driver/Inc/Legacy",
+                "./Drivers/CMSIS/Include",
+                "./Drivers/CMSIS/Device/ST/STM32F3xx/Include",
+                "C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update/lib/gcc/arm-none-eabi/9.3.1/include"
+            ],
+            "defines": [
+                "STM32F302x8"
+            ],
+            "intelliSenseMode": "gcc-arm",
+            "compilerPath": "C:/Program Files (x86)/GNU Arm Embedded Toolchain/9 2020-q2-update/bin/arm-none-eabi-gcc.exe"
+        }
+    ],
+    "version": 4
+}
