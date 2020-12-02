@@ -54,3 +54,4 @@ dkms.conf
 
 # ST toolchain
 *.lst
+CrankSignalFollower/.vscode/.cortex-debug.peripherals.state.json
