@@ -221,7 +221,21 @@ void TIM1_CC_IRQHandler(void)
   /* USER CODE END TIM1_CC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_CC_IRQn 1 */
+  
+  //define timing vars
+  const uint16_t pwmVals[4] = {0x0100, 0x3e80, 0x7d00, 0xbb80};
+  static uint8_t pwmIdx = 0;
+  
+  //out of bounds check
+  if(pwmIdx < 0 || pwmIdx > 3)
+    pwmIdx = 0;
 
+  //assign value and increase index
+  uint16_t pwmNewVal = pwmVals[pwmIdx];
+  pwmIdx++;
+
+  //update PWM channel
+  TIM1->CCR1 = pwmNewVal;
   /* USER CODE END TIM1_CC_IRQn 1 */
 }
 
