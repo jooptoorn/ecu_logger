@@ -16,7 +16,7 @@ void crank_init(machine_state_t *sm)
 	if(STATE_IS_ENTERED(sm, &crank_init) || STATE_IS_RE_ENTERED(sm))
 	{
 		sm->currentState = &crank_init;
-        sm->reentry = 0;
+        sm->reentry = NO_RE_ENTRY_STATE;
 	}
 
 	/*
@@ -59,7 +59,7 @@ void crank_step(machine_state_t *sm)
 	if(STATE_IS_ENTERED(sm, &crank_step) || STATE_IS_RE_ENTERED(sm))
 	{
 		sm->currentState = &crank_step;
-        sm->reentry = 0;
+        sm->reentry = NO_RE_ENTRY_STATE;
 	}
 
 	/*
@@ -81,6 +81,202 @@ void crank_step(machine_state_t *sm)
     
     */
 	if(STATE_IS_EXIT(sm, &crank_step))
+	{
+		
+	}
+}
+
+void crank_pulse_init(machine_state_t *sm)
+{
+	/*
+	
+	State Guard Variables
+	
+	*/
+    static uint8_t regPulseCnt = 0;     //count number of normal pulses to predict when sync pulse occurs
+    static float prevPulseDur = 0;
+	
+	/*
+	
+	State Entry
+	
+	*/
+	if(STATE_IS_ENTERED(sm, &crank_pulse_init) || STATE_IS_RE_ENTERED(sm))
+	{
+		sm->currentState = &crank_pulse_init;
+        sm->reentry = NO_RE_ENTRY_STATE;
+        //reset guard var
+        regPulseCnt = 0;
+	}
+
+	/*
+	
+	State Activity
+	
+	*/
+
+	/*
+	
+	State Transition
+	
+	*/
+    crank_pulse_data_t* data = (crank_pulse_data_t*) sm->data;      //recast generic pointer
+    //check for new data through interrupt
+    if(data->newTimerVal != data->prevTimerVal)
+    {
+        //process new pulse
+        uint32_t newPulseDur;
+
+        if(data->newTimerVal > data->prevTimerVal)
+            newPulseDur = data->newTimerVal - data->prevTimerVal;
+        else
+            newPulseDur = (UINT32_MAX - data->prevTimerVal) + data->newTimerVal + 1;   //deal with uint32 overflow
+        
+        /* Convert to normal seconds */
+        float newPulseDur_f = (float) newPulseDur * data->timCntToTime;
+
+        if(regPulseCnt < NUM_PULSE_PER_REV - 1)
+        {
+            /* happens for regular pulse */
+            /* Sanity check pulse length */
+            float minExpPulseDur = prevPulseDur * REG_PULSE_MARGIN_INV;
+            float maxExpPulseDur = prevPulseDur * REG_PULSE_MARGIN;
+
+            if(minExpPulseDur < newPulseDur_f && minExpPulseDur < maxExpPulseDur)
+            {
+                /* Happens for pulse that had a valid/expected duration.
+                Increase regular pulse count and reset state vars */
+                regPulseCnt++;
+                
+            }
+            else
+            {
+                /* happens for invalid/unexpected pulses 
+                Act as if the new pulse was the first regular pulse of a series */
+                regPulseCnt = 1;
+            }
+
+        }
+        else
+        {
+            /* happens for sync pulse */
+             /* Sanity check pulse length */
+            float minExpPulseDur = prevPulseDur * SYNC_PULSE_DELAY_F * SYNC_PULSE_MARGIN_INV;
+            float maxExpPulseDur = prevPulseDur * SYNC_PULSE_DELAY_F * SYNC_PULSE_MARGIN;
+
+            if(minExpPulseDur < newPulseDur_f && minExpPulseDur < maxExpPulseDur)
+            {
+                /* Happens for pulse that had a valid/expected duration.
+                We are in sync, goto next state! */
+                sm->nextState = &crank_pulse_reg;
+                
+            }
+            else
+            {
+                //something must have gone wrong. Re-enter state and try again
+                RE_ENTER_STATE(sm);
+            }
+            
+        }
+        
+        //update state vars
+        prevPulseDur = newPulseDur_f;
+        data->prevTimerVal = data->newTimerVal;
+        
+    }
+
+    /*
+    
+    State Exit
+    
+    */
+	if(STATE_IS_EXIT(sm, &crank_pulse_init))
+	{
+		
+	}
+}
+
+void crank_pulse_reg(machine_state_t *sm)
+{
+	/*
+	
+	State Guard Variables
+	
+	*/
+	
+	/*
+	
+	State Entry
+	
+	*/
+	if(STATE_IS_ENTERED(sm, &crank_pulse_reg) || STATE_IS_RE_ENTERED(sm))
+	{
+		sm->currentState = &crank_pulse_reg;
+        sm->reentry = NO_RE_ENTRY_STATE;
+	}
+
+	/*
+	
+	State Activity
+	
+	*/
+
+	/*
+	
+	State Transition
+	
+	*/
+    RE_ENTER_STATE(sm);
+
+    /*
+    
+    State Exit
+    
+    */
+	if(STATE_IS_EXIT(sm, &crank_pulse_reg))
+	{
+		
+	}
+}
+
+void crank_pulse_sync(machine_state_t *sm)
+{
+	/*
+	
+	State Guard Variables
+	
+	*/
+	
+	/*
+	
+	State Entry
+	
+	*/
+	if(STATE_IS_ENTERED(sm, &crank_pulse_sync) || STATE_IS_RE_ENTERED(sm))
+	{
+		sm->currentState = &crank_pulse_sync;
+        sm->reentry = NO_RE_ENTRY_STATE;
+	}
+
+	/*
+	
+	State Activity
+	
+	*/
+
+	/*
+	
+	State Transition
+	
+	*/
+    RE_ENTER_STATE(sm);
+
+    /*
+    
+    State Exit
+    
+    */
+	if(STATE_IS_EXIT(sm, &crank_pulse_sync))
 	{
 		
 	}

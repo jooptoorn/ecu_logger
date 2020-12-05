@@ -33,7 +33,7 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+extern crank_pulse_data_t cps_data;        //contains pulse event data for the Crank Pulse State Machine
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/

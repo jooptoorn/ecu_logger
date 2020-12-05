@@ -42,7 +42,6 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-volatile uint32_t capTimerVal[10];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -203,27 +202,8 @@ void SysTick_Handler(void)
 void EXTI0_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI0_IRQn 0 */
-  static uint8_t capTimerIdx = 0;
-  static uint32_t prevTval = 0;
-  uint32_t newTval = 0;
-  uint32_t dTval = 0;
-
-  //out of bounds check
-  if(capTimerIdx < 0 || capTimerIdx > 9)
-    capTimerIdx = 0;
-
-  //store timer value
-  newTval = TIM2->CNT;
-  //calculate difference and handle overflow
-  if(newTval > prevTval)
-    dTval = newTval - prevTval;
-  else 
-    dTval = (UINT32_MAX - prevTval) + newTval + 1;
-  
-  capTimerVal[capTimerIdx] = dTval;
-
-  capTimerIdx++;
-  prevTval = newTval;
+   //feed event to statemachine
+  cps_data.newTimerVal = TIM2->CNT;
 
   /* USER CODE END EXTI0_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
