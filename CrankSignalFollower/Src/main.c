@@ -47,7 +47,7 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+machine_state_t state_machine;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,10 +97,14 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
+  memset(&state_machine, 0, sizeof(state_machine));
+  state_machine.nextState = &crank_init;
+
   //start the PWM timer
   HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
   //start the crank signal capture timer
   HAL_TIM_Base_Start(&htim2);
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -108,7 +112,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+    void (*nextState)(machine_state_t* sm) = state_machine.nextState;
+    (*nextState)(&state_machine);
+    //*(state_machine.nextState)(&state_machine));
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

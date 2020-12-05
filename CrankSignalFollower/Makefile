@@ -39,6 +39,7 @@ C_SOURCES =  \
 Src/main.c \
 Src/stm32f3xx_it.c \
 Src/stm32f3xx_hal_msp.c \
+Src/crank.c \
 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c \
 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c \
 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c \
