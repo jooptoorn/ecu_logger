@@ -112,9 +112,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    void (*nextState)(machine_state_t* sm) = state_machine.nextState;
-    (*nextState)(&state_machine);
-    //*(state_machine.nextState)(&state_machine));
+    (*state_machine.nextState)(&state_machine);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
