@@ -223,11 +223,11 @@ void TIM1_CC_IRQHandler(void)
   /* USER CODE BEGIN TIM1_CC_IRQn 1 */
   
   //define timing vars
-  const uint16_t pwmVals[4] = {0x0100, 0x3e80, 0x7d00, 0xbb80};
+  const uint16_t pwmVals[6] = {0x0020, 0x0020, 0x0020, 0x0020, 0x0020, 0x0080};
   static uint8_t pwmIdx = 0;
   
   //out of bounds check
-  if(pwmIdx < 0 || pwmIdx > 3)
+  if(pwmIdx < 0 || pwmIdx > 5)
     pwmIdx = 0;
 
   //assign value and increase index
