@@ -106,8 +106,6 @@ int main(void)
   cps_state_machine.data      = (void*) &cps_data;
   cps_state_machine.nextState = &crank_pulse_init;
 
-  cps_data.timCntToTime = 1.0f / (float) HAL_RCC_GetHCLKFreq();
-
   //start the PWM timer
   HAL_TIM_PWM_Start_IT(&htim1, TIM_CHANNEL_1);
   //start the crank signal capture timer
@@ -120,12 +118,20 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
+    
+    /* USER CODE BEGIN 3 */
     //Execute main statemachine
     (*state_machine.nextState)(&state_machine);
 
     //Execute crankshaft pulse sensor statemachine
     (*cps_state_machine.nextState)(&cps_state_machine);
-    /* USER CODE BEGIN 3 */
+
+    //debug write state of crank pulse statemachine to LED. on = synced, off = init.
+    //check state by comparing pulse timing vars, they are set to 0 whenever not in sync
+    if(cps_data.pulseTimes[0] > 1.e-9f)
+      HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_SET);
+    else
+      HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
   }
   /* USER CODE END 3 */
 }

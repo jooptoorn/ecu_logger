@@ -17,6 +17,7 @@ void crank_init(machine_state_t *sm)
 	{
 		sm->currentState = &crank_init;
         sm->reentry = NO_RE_ENTRY_STATE;
+		
 	}
 
 	/*
@@ -107,6 +108,10 @@ void crank_pulse_init(machine_state_t *sm)
         sm->reentry = NO_RE_ENTRY_STATE;
         //reset guard var
         regPulseCnt = 0;
+		//reset data buffer
+		crank_pulse_data_t* data = (crank_pulse_data_t*) sm->data;      //recast generic pointer
+		memset(data, 0, sizeof(crank_pulse_data_t));
+		data->timCntToTime = 1.0f / (float) HAL_RCC_GetHCLKFreq();
 	}
 
 	/*
