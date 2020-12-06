@@ -204,6 +204,8 @@ void crank_pulse_reg(machine_state_t *sm)
 	
 	*/
 	static uint8_t regPulseCnt;
+	static uint32_t entryTime;
+	static uint32_t timeOutCnt;
 	
 	/*
 	
@@ -216,6 +218,9 @@ void crank_pulse_reg(machine_state_t *sm)
         sm->reentry = NO_RE_ENTRY_STATE;
 		//reset state
 		regPulseCnt = 0;
+		//record timer count
+		entryTime = TIM2->CNT;
+		timeOutCnt = PULSE_TIMEOUT_S * (NUM_PULSE_PER_REV - 1) * HAL_RCC_GetHCLKFreq();
 	}
 
 	/*
@@ -254,7 +259,15 @@ void crank_pulse_reg(machine_state_t *sm)
 	//goto sync pulse state when received N-1 pulses out of a sequence with length N
 	if(regPulseCnt == NUM_PULSE_PER_REV - 1)
 		GOTO_STATE(sm, &crank_pulse_sync);
-
+	//check for timeouts
+	uint32_t currentTimeCnt = TIM2->CNT;
+	uint32_t elapsedTimeCnt = 0;
+	if(currentTimeCnt > entryTime)
+		elapsedTimeCnt = currentTimeCnt - entryTime;
+	else //timer overflowed
+		elapsedTimeCnt = (UINT32_MAX - entryTime) + currentTimeCnt + 1;
+	if(elapsedTimeCnt > timeOutCnt)
+		GOTO_STATE(sm, &crank_pulse_init);
     /*
     
     State Exit
@@ -274,6 +287,8 @@ void crank_pulse_sync(machine_state_t *sm)
 	
 	*/
     uint32_t newPulseDur = 0;
+	static uint32_t entryTime;
+	static uint32_t timeOutCnt;
 	
 	/*
 	
@@ -284,6 +299,10 @@ void crank_pulse_sync(machine_state_t *sm)
 	{
 		sm->currentState = &crank_pulse_sync;
         sm->reentry = NO_RE_ENTRY_STATE;
+
+		//record timer count
+		entryTime = TIM2->CNT;
+		timeOutCnt = PULSE_TIMEOUT_S * HAL_RCC_GetHCLKFreq();
 	}
 
 	/*
@@ -361,7 +380,19 @@ void crank_pulse_sync(machine_state_t *sm)
 		else					//error: go to init until synced again
 			GOTO_STATE(sm, &crank_pulse_init);
 	}
-
+	else
+	{
+		//check for timeouts
+		uint32_t currentTimeCnt = TIM2->CNT;
+		uint32_t elapsedTimeCnt = 0;
+		if(currentTimeCnt > entryTime)
+			elapsedTimeCnt = currentTimeCnt - entryTime;
+		else //timer overflowed
+			elapsedTimeCnt = (UINT32_MAX - entryTime) + currentTimeCnt + 1;
+		if(elapsedTimeCnt > timeOutCnt)
+			GOTO_STATE(sm, &crank_pulse_init);
+	}
+	
     /*
     
     State Exit

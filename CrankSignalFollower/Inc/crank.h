@@ -17,6 +17,9 @@
 #define SYNC_PULSE_MARGIN 1.2f
 #define SYNC_PULSE_MARGIN_INV (1.0f/SYNC_PULSE_MARGIN)
 
+//timeouts for synced operation
+#define PULSE_TIMEOUT_S 1u	//uint of number of seconds that statemachine will wait to receive next crank signal pulse
+
 #define NO_RE_ENTRY_STATE 0
 #define RE_ENTRY_STATE (!NO_RE_ENTRY_STATE)
 
