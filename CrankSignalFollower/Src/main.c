@@ -118,7 +118,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    
+
     /* USER CODE BEGIN 3 */
     //Execute main statemachine
     (*state_machine.nextState)(&state_machine);
@@ -366,7 +366,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : PWMIN_Pin */
   GPIO_InitStruct.Pin = PWMIN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(PWMIN_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : LD2_Pin */

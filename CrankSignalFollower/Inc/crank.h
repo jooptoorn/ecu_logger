@@ -9,12 +9,12 @@
 //margin is factor that a pulse may deviate from previous pulse to be considered as 'regular'.
 //max expected new_pulse_t = regular_pulse_margin * previous_pulse_t
 //min expected new_pulse_t = (1/regular_pulse_margin) * previous_pulse_t
-#define REG_PULSE_MARGIN 1.2f
+#define REG_PULSE_MARGIN 1.25f
 #define REG_PULSE_MARGIN_INV (1.0f/REG_PULSE_MARGIN)
 //duration between previous and sync pulse rising flank must be SYNC_PULSE_DELAY_F longer than regular pulse duration. I.e., it is significantly later than a regular pulse would be.
 //note that the next pulse will happen faster, at factor (2 - SYNC_PULSE_DELAY_F) when compared to regular interval
 #define SYNC_PULSE_DELAY_F 1.6f
-#define SYNC_PULSE_MARGIN 1.2f
+#define SYNC_PULSE_MARGIN 1.25f
 #define SYNC_PULSE_MARGIN_INV (1.0f/SYNC_PULSE_MARGIN)
 
 //timeouts for synced operation
