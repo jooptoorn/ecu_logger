@@ -45,7 +45,9 @@ typedef struct crank_pulse_data_s
 	uint32_t prevTimerVal;
 	uint32_t newTimerVal;
 	float engineRpm;
-	float timCntToTime;
+	float engineRps;					//rev per second
+	float timCntToTime;					//factor to convert timer count (from sys clk) to actual time in seconds
+	float pulseTimes[NUM_PULSE_PER_REV];//store intervals
 } crank_pulse_data_t;
 
 void crank_pulse_init(machine_state_t *sm);

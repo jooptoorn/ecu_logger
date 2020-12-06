@@ -168,7 +168,7 @@ void crank_pulse_init(machine_state_t *sm)
             {
                 /* Happens for pulse that had a valid/expected duration.
                 We are in sync, goto next state! */
-                sm->nextState = &crank_pulse_reg;
+            	GOTO_STATE(sm, &crank_pulse_reg);
                 
             }
             else
@@ -203,6 +203,7 @@ void crank_pulse_reg(machine_state_t *sm)
 	State Guard Variables
 	
 	*/
+	static uint8_t regPulseCnt;
 	
 	/*
 	
@@ -213,6 +214,8 @@ void crank_pulse_reg(machine_state_t *sm)
 	{
 		sm->currentState = &crank_pulse_reg;
         sm->reentry = NO_RE_ENTRY_STATE;
+		//reset state
+		regPulseCnt = 0;
 	}
 
 	/*
@@ -220,13 +223,37 @@ void crank_pulse_reg(machine_state_t *sm)
 	State Activity
 	
 	*/
+    //check if new pulse has been detected
+	crank_pulse_data_t* data = (crank_pulse_data_t*) sm->data;      //recast generic pointer
+	if(data->newTimerVal != data->prevTimerVal)
+    {
+		//process new pulse.
+		//in this state, assume the pulses are of valid length. This will be check later on in sync state
+        uint32_t newPulseDur;
+
+        if(data->newTimerVal > data->prevTimerVal)
+            newPulseDur = data->newTimerVal - data->prevTimerVal;
+        else
+            newPulseDur = (UINT32_MAX - data->prevTimerVal) + data->newTimerVal + 1;   //deal with uint32 overflow
+        
+        /* Convert timer count to duration in seconds and store */
+        float newPulseDur_f = (float) newPulseDur * data->timCntToTime;
+		uint8_t idx = regPulseCnt % NUM_PULSE_PER_REV; //safe indexing
+		data->pulseTimes[idx] = newPulseDur_f;
+
+		//update state vars
+        data->prevTimerVal = data->newTimerVal;
+		regPulseCnt++;
+	}
 
 	/*
 	
 	State Transition
 	
 	*/
-    RE_ENTER_STATE(sm);
+	//goto sync pulse state when received N-1 pulses out of a sequence with length N
+	if(regPulseCnt == NUM_PULSE_PER_REV - 1)
+		GOTO_STATE(sm, &crank_pulse_sync);
 
     /*
     
@@ -246,6 +273,7 @@ void crank_pulse_sync(machine_state_t *sm)
 	State Guard Variables
 	
 	*/
+    uint32_t newPulseDur = 0;
 	
 	/*
 	
@@ -263,13 +291,37 @@ void crank_pulse_sync(machine_state_t *sm)
 	State Activity
 	
 	*/
+	//check if new pulse has been detected
+	crank_pulse_data_t* data = (crank_pulse_data_t*) sm->data;      //recast generic pointer
+	if(data->newTimerVal != data->prevTimerVal)
+    {
+		//process new pulse.
+		//in this state, assume the pulses are of valid length. This will be check later on in sync state
+
+        if(data->newTimerVal > data->prevTimerVal)
+            newPulseDur = data->newTimerVal - data->prevTimerVal;
+        else
+            newPulseDur = (UINT32_MAX - data->prevTimerVal) + data->newTimerVal + 1;   //deal with uint32 overflow
+        
+        /* Convert timer count to duration in seconds and store */
+        float newPulseDur_f = (float) newPulseDur * data->timCntToTime;
+		data->pulseTimes[NUM_PULSE_PER_REV - 1] = newPulseDur_f;
+
+		//update state vars
+        data->prevTimerVal = data->newTimerVal;
+	}
 
 	/*
 	
 	State Transition
 	
 	*/
-    RE_ENTER_STATE(sm);
+	//check if new pulse was processed
+	if(newPulseDur > 0)
+	{
+		//TODO SANITY CHECK result
+		GOTO_STATE(sm, &crank_pulse_reg);
+	}
 
     /*
     
