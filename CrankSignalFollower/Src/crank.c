@@ -319,8 +319,47 @@ void crank_pulse_sync(machine_state_t *sm)
 	//check if new pulse was processed
 	if(newPulseDur > 0)
 	{
-		//TODO SANITY CHECK result
-		GOTO_STATE(sm, &crank_pulse_reg);
+		//check if timing is in order
+		float minExpPulseDur;
+    	float maxExpPulseDur;
+		bool pulseSequenceValid = true;
+
+		//time between prev sync and first regular pulse must be significantly shorter than between 1st and 2nd
+		//note that it is calculated by taking length of 2 regular pulses and subtracting the expected interval of the sync pulse
+		minExpPulseDur = data->pulseTimes[1] * (2.0f-SYNC_PULSE_DELAY_F) * SYNC_PULSE_MARGIN_INV;
+		maxExpPulseDur = data->pulseTimes[1] * (2.0f-SYNC_PULSE_DELAY_F) * SYNC_PULSE_MARGIN;
+		//check if duration exceeds limits
+		if(data->pulseTimes[0] < minExpPulseDur)
+			pulseSequenceValid = false;
+		if(data->pulseTimes[0] > maxExpPulseDur)
+			pulseSequenceValid = false;
+		
+		//check if regular pulse cycle does not deviate more than REG_PULSE_MARGIN between pulses
+		for(uint8_t i=2; i < NUM_PULSE_PER_REV-2; i++)
+		{
+			minExpPulseDur = data->pulseTimes[i-1] * REG_PULSE_MARGIN_INV;
+			maxExpPulseDur = data->pulseTimes[i-1] * REG_PULSE_MARGIN;
+
+			//check if duration exceeds limits
+			if(data->pulseTimes[i] < minExpPulseDur)
+				pulseSequenceValid = false;
+			if(data->pulseTimes[i] > maxExpPulseDur)
+				pulseSequenceValid = false;
+		}
+
+		//check if time between last regular and sync pulse was significantly longer than regular pulses
+		minExpPulseDur = data->pulseTimes[NUM_PULSE_PER_REV-2] * SYNC_PULSE_DELAY_F * SYNC_PULSE_MARGIN_INV;
+		maxExpPulseDur = data->pulseTimes[NUM_PULSE_PER_REV-2] * SYNC_PULSE_DELAY_F * SYNC_PULSE_MARGIN;
+		
+		if(data->pulseTimes[NUM_PULSE_PER_REV-1] < minExpPulseDur)
+			pulseSequenceValid = false;
+		if(data->pulseTimes[NUM_PULSE_PER_REV-1] > maxExpPulseDur)
+			pulseSequenceValid = false;
+
+		if(pulseSequenceValid)	//receive next sequence
+			GOTO_STATE(sm, &crank_pulse_reg);
+		else					//error: go to init until synced again
+			GOTO_STATE(sm, &crank_pulse_init);
 	}
 
     /*

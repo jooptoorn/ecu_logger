@@ -2,6 +2,7 @@
 #define _CRANK_H_
 
 #include <stdint.h>
+#include "main.h"
 
 #define NUM_PULSE_PER_REV 6	//Number of crank sensor pulses per one revolution of crankshaft
 
@@ -11,7 +12,8 @@
 #define REG_PULSE_MARGIN 1.2f
 #define REG_PULSE_MARGIN_INV (1.0f/REG_PULSE_MARGIN)
 //duration between previous and sync pulse rising flank must be SYNC_PULSE_DELAY_F longer than regular pulse duration. I.e., it is significantly later than a regular pulse would be.
-#define SYNC_PULSE_DELAY_F 1.5f
+//note that the next pulse will happen faster, at factor (2 - SYNC_PULSE_DELAY_F) when compared to regular interval
+#define SYNC_PULSE_DELAY_F 1.6f
 #define SYNC_PULSE_MARGIN 1.2f
 #define SYNC_PULSE_MARGIN_INV (1.0f/SYNC_PULSE_MARGIN)
 
