@@ -47,7 +47,6 @@ TIM_HandleTypeDef htim2;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-machine_state_t state_machine;
 machine_state_t cps_state_machine;
 crank_pulse_data_t cps_data;
 /* USER CODE END PV */
@@ -99,10 +98,8 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-  memset(&state_machine,        0, sizeof(machine_state_t));
   memset(&cps_state_machine,    0, sizeof(machine_state_t));
   memset(&cps_data,             0, sizeof(crank_pulse_data_t));
-  state_machine.nextState     = &crank_init;
   cps_state_machine.data      = (void*) &cps_data;
   cps_state_machine.nextState = &crank_pulse_init;
 
@@ -120,8 +117,6 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    //Execute main statemachine
-    (*state_machine.nextState)(&state_machine);
 
     //Execute crankshaft pulse sensor statemachine
     (*cps_state_machine.nextState)(&cps_state_machine);

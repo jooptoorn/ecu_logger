@@ -29,6 +29,19 @@
 #define RE_ENTER_STATE(x)		(x->reentry = RE_ENTRY_STATE)
 #define GOTO_STATE(x,y)			(x->nextState = y)
 
+/**
+*
+*	Utilities
+*
+*/
+
+
+/**
+ * 
+ *	State machine defs  
+ * 
+ */
+
 typedef struct machine_state_s machine_state_t;
 
 typedef void (state_func_t)(machine_state_t*);
@@ -40,9 +53,6 @@ typedef struct machine_state_s
 	uint8_t reentry;			//flag for state re-entry
 	void *data;					//pointer to any data structure that may be used inside statemachine
 } machine_state_t;
-
-void crank_init(machine_state_t *sm);
-void crank_step(machine_state_t *sm);
 
 // data belonging to pulse statemachine
 typedef struct crank_pulse_data_s 
