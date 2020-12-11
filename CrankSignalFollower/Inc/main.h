@@ -43,11 +43,7 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-#ifndef __cplusplus
-  typedef uint8_t bool;
-  #define false 0u
-  #define true 1u
-#endif
+
 /* USER CODE END EC */
 
 /* Exported macro ------------------------------------------------------------*/

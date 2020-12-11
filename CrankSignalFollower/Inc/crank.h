@@ -1,7 +1,7 @@
 #ifndef _CRANK_H_
 #define _CRANK_H_
 
-#include <stdint.h>
+#include <stdbool.h>
 #include "main.h"
 
 #define NUM_PULSE_PER_REV 6	//Number of crank sensor pulses per one revolution of crankshaft
